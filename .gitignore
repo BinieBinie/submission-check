@@ -1,5 +1,3 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
 # dependencies
 /node_modules
 /.pnp
@@ -30,8 +28,16 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# env / secrets
+# 로컬 비밀, 배포 환경변수용 파일은 절대 커밋하지 않음
+.env.local
+.env
+.env.production
+.env.*.local
+
+# 예: .env.example 처럼 팀 공유용 템플릿은 필요하면 커밋해도 됨
+# (기본값은 커밋 제외, 필요한 경우만 아래 주석 해제)
+# !.env.example
 
 # vercel
 .vercel
