@@ -97,7 +97,7 @@ export default function Home() {
     if (result) setResult(null);
   };
 
-  const extractPdfText = async (file: File): Promise<string> => {
+  const extractPdfText = async (file: File): Promise<{ text: string; pageCount: number }> => {
     const arrayBuffer = await file.arrayBuffer();
     const pdfjs = await import('pdfjs-dist');
     const originalWorkerSrc = pdfjs.GlobalWorkerOptions.workerSrc;
@@ -115,7 +115,7 @@ export default function Home() {
           pageTexts.push(pageText);
         }
       }
-      return pageTexts.join('\n');
+      return { text: pageTexts.join('\n'), pageCount: pdf.numPages };
     } finally {
       pdfjs.GlobalWorkerOptions.workerSrc = originalWorkerSrc;
     }
@@ -126,7 +126,7 @@ export default function Home() {
     setGuidelineIsExtracting(true);
     setGuidelineExtractError('');
     try {
-      const text = await extractPdfText(guidelinePdfFile);
+      const { text } = await extractPdfText(guidelinePdfFile);
       setGuidelinePdfText(text);
     } catch (e) {
       setGuidelineExtractError(String(e));
@@ -140,8 +140,9 @@ export default function Home() {
     setDocumentIsExtracting(true);
     setDocumentExtractError('');
     try {
-      const text = await extractPdfText(documentPdfFile);
-      setDocumentPdfText(text);
+      const { text, pageCount } = await extractPdfText(documentPdfFile);
+      const fileInfoLine = `파일: ${documentPdfFile.name} / 페이지 수: ${pageCount}\n`;
+      setDocumentPdfText(fileInfoLine + text);
     } catch (e) {
       setDocumentExtractError(String(e));
     } finally {

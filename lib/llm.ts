@@ -4,7 +4,7 @@ export async function callSolarPro4(messages: object[], apiKey: string) {
     model: 'solar-pro4',
     messages,
     max_tokens: 4096,
-    temperature: 0.2,
+    temperature: 0,
   };
 
   const res = await fetch(url, {
