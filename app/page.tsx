@@ -14,7 +14,7 @@ interface ACheck {
   id: number;
   requirement: string;
   quote: string;
-  result: '확인됨' | '일부만 확인됨' | '확인되지 않음';
+  result: '[충족]' | '[불충분]' | '[미충족]';
 }
 
 interface BCheck {
@@ -109,8 +109,8 @@ export default function Home() {
         for (let i = 1; i <= pdf.numPages; i += 1) {
           const page = await pdf.getPage(i);
           const content = await page.getTextContent();
-          const pageText = content.items
-            .map((item: { str?: string }) => item.str ?? '')
+          const pageText = (content.items as { str?: string }[])
+            .map((item) => item.str ?? '')
             .join('');
           if (pageText.trim()) {
             pageTexts.push(pageText);

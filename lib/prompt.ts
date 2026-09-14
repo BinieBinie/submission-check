@@ -104,7 +104,7 @@ function parseResult(content: string): {
     const data = JSON.parse(trimmed.slice(jsonStart, jsonEnd + 1));
     return {
       requirements: (data.requirements ?? []) as Array<{ id: number; text: string; source: string; type: 'A' | 'B'; strength: '필수' | '권장' }>,
-      aChecks: (data.aChecks ?? []) as Array<{ id: number; requirement: string; quote: string; result: '확인됨' | '일부만 확인됨' | '확인되지 않음' }>,
+      aChecks: (data.aChecks ?? []) as Array<{ id: number; requirement: string; quote: string; result: '[충족]' | '[불충분]' | '[미충족]' }>,
       bChecks: (data.bChecks ?? []) as Array<{ id: number; requirement: string; question: string }>,
       finalMessage: String(data.finalMessage ?? ''),
       warning: data.warning ? String(data.warning) : undefined,
