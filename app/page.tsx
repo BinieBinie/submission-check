@@ -14,7 +14,7 @@ interface ACheck {
   id: number;
   requirement: string;
   quote: string;
-  result: '확인됨' | '일부만 확인됨' | '확인되지 않음';
+  result: '[충족]' | '[불충분]' | '[미충족]';
 }
 
 interface BCheck {
@@ -54,12 +54,6 @@ export default function Home() {
     }
     return '';
   });
-  const [pdfFile, setPdfFile] = useState<File | null>(null);
-  const [pdfText, setPdfText] = useState('');
-  const [pdfFileName, setPdfFileName] = useState('');
-  const [isExtracting, setIsExtracting] = useState(false);
-  const [extractedFileName, setExtractedFileName] = useState('');
-  const [extractedPageCount, setExtractedPageCount] = useState<number | null>(null);
   const [isInspecting, setIsInspecting] = useState(false);
   const [result, setResult] = useState<InspectResult | null>(null);
   const [error, setError] = useState('');
@@ -95,50 +89,6 @@ export default function Home() {
     if (result) setResult(null);
   };
 
-  const handleExtractPdf = async () => {
-    if (!pdfFile) return;
-    setIsExtracting(true);
-    setError('');
-    setResult(null);
-    try {
-      const res = await fetch('/api/extract-pdf', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: pdfFile.name,
-          buffer: Array.from(new Uint8Array(await pdfFile.arrayBuffer())),
-        }),
-      });
-      if (!res.ok) {
-        const data = (await res.json().catch(() => ({}))) as { error?: string };
-        throw new Error(data.error ?? `PDF 추출 실패: ${res.status}`);
-      }
-      const data = (await res.json()) as {
-        text: string;
-        fileName: string;
-        extension: string;
-        pageCount: number | null;
-      };
-      setPdfText(data.text);
-      setPdfFileName(data.fileName);
-      setExtractedFileName(data.fileName);
-      setExtractedPageCount(data.pageCount);
-    } catch (e) {
-      setError(String(e));
-    } finally {
-      setIsExtracting(false);
-    }
-  };
-
-  const removePdf = () => {
-    setPdfFile(null);
-    setPdfText('');
-    setPdfFileName('');
-    setExtractedFileName('');
-    setExtractedPageCount(null);
-    if (result) setResult(null);
-  };
-
   const handleInspect = async () => {
     if (!guideline.trim() || !document.trim()) {
       setError('요강과 결과물을 모두 입력해 주세요.');
@@ -153,16 +103,6 @@ export default function Home() {
         document,
         mockMode,
       };
-      if (pdfText) {
-        body.documentPdfText = pdfText;
-      }
-      if (extractedFileName) {
-        body.fileName = extractedFileName;
-        body.extension = pdfFile?.name.split('.').pop()?.toLowerCase() ?? 'pdf';
-      }
-      if (extractedPageCount !== null) {
-        body.pageCount = extractedPageCount;
-      }
 
       const res = await fetch('/api/inspect', {
         method: 'POST',
@@ -185,11 +125,6 @@ export default function Home() {
   const handleClear = () => {
     setGuideline('');
     setDocument('');
-    setPdfFile(null);
-    setPdfText('');
-    setPdfFileName('');
-    setExtractedFileName('');
-    setExtractedPageCount(null);
     setResult(null);
     setError('');
     clearLocalStorage();
@@ -222,76 +157,9 @@ export default function Home() {
         <textarea
           value={document}
           onChange={(e) => handleDocumentChange(e.target.value)}
-          placeholder="제출할 결과물 본문을 붙여넣으세요. PDF를 올렸다가 텍스트로 바꿔 넣어도 돼요."
+          placeholder="제출할 결과물 본문을 붙여넣으세요."
           style={{ width: '100%', minHeight: 220, padding: '10px', fontFamily: 'inherit', fontSize: 14, boxSizing: 'border-box' }}
         />
-      </section>
-
-      <section style={{ marginTop: 20, padding: '14px', border: '1px solid #ddd', borderRadius: 8, background: '#fafafa' }}>
-        <div style={{ fontWeight: 600, marginBottom: 8 }}>PDF 업로드 (선택)</div>
-        <p style={{ fontSize: 13, color: '#555', marginBottom: 10 }}>
-          PDF를 올리면 텍스트를 뽑아 보여드리고, 필요하면 직접 수정할 수 있어요.
-          글자가 있는 PDF는 내용을 읽으려 하고, 글자가 이미지로 된 PDF도 OCR 방식으로 읽어 보려 해요.
-          인식을 못 하거나 결과가 없으면, 그 부분은 자동 확인 불가 항목으로 남겨요.
-        </p>
-
-        {pdfFile ? (
-          <div style={{ marginBottom: 10 }}>
-            <div style={{ fontSize: 13, color: '#333' }}>
-              업로드됨: <span style={{ fontWeight: 600 }}>{pdfFile.name}</span>
-              {extractedFileName ? ` / 추출 파일: ${extractedFileName}` : ''}
-            </div>
-            {pdfText ? (
-              <div style={{ marginTop: 8 }}>
-                <div style={{ fontSize: 13, color: '#333', marginBottom: 6 }}>
-                  추출한 텍스트 (수정 가능):
-                  {extractedPageCount !== null ? ` (페이지 수: ${extractedPageCount})` : ''}
-                </div>
-                <textarea
-                  value={pdfText}
-                  onChange={(e) => {
-                    setPdfText(e.target.value);
-                    if (result) setResult(null);
-                  }}
-                  style={{ width: '100%', minHeight: 120, padding: '10px', fontFamily: 'inherit', fontSize: 13, boxSizing: 'border-box' }}
-                />
-              </div>
-            ) : (
-              <div style={{ marginTop: 8, color: '#555', fontSize: 13 }}>텍스트 추출 중이거나 결과가 없어요.</div>
-            )}
-            <button type="button" onClick={removePdf} style={{ marginTop: 8, background: '#f0f0f0', border: '1px solid #ccc', padding: '6px 12px', borderRadius: 6, cursor: 'pointer' }}>
-              업로드 제거
-            </button>
-          </div>
-        ) : (
-          <div>
-            <input
-              type="file"
-              accept=".pdf"
-              onChange={(e) => {
-                const file = e.target.files?.[0] ?? null;
-                if (file) {
-                  setPdfFile(file);
-                  setPdfText('');
-                  setPdfFileName(file.name);
-                  setExtractedFileName('');
-                  setExtractedPageCount(null);
-                  if (result) setResult(null);
-                }
-              }}
-            />
-            <div style={{ marginTop: 8, fontSize: 12, color: '#888' }}>.hwp 파일은 직접 읽을 수 없어요. 직접 확인 필요 항목으로 넘겨요.</div>
-          </div>
-        )}
-
-        <button
-          type="button"
-          onClick={handleExtractPdf}
-          disabled={!pdfFile || isExtracting}
-          style={{ marginTop: 10, padding: '8px 16px', borderRadius: 6, border: '1px solid #aaa', background: isExtracting ? '#eee' : '#fff', cursor: pdfFile && !isExtracting ? 'pointer' : 'not-allowed' }}
-        >
-          {isExtracting ? 'PDF 텍스트 추출 중...' : 'PDF 텍스트 추출'}
-        </button>
       </section>
 
       {error && (

@@ -14,7 +14,7 @@ function buildPrompt(guideline: string, document: string, hasPdfText: boolean, f
 ## 역할
 - 요강에서 지켜야 할 요건을 빠짐없이 뽑아 번호를 매긴다.
 - 각 요건을 [A] 자동 확인 가능 / [B] 직접 확인 필요로 분류한다.
-- [A] 항목은 결과물 텍스트에서 인용한 뒤, "확인됨"/"일부만 확인됨"/"확인되지 않음" 중 하나로 판정한다.
+- [A] 항목은 결과물 텍스트에서 인용한 뒤, "[충족]"/"[불충분]"/"[미충족]" 중 하나로 판정한다.
 - [B] 항목은 판정하지 않고, 직접 확인 질문으로 제시한다.
 - 요강에 없는 요건은 만들지 않는다.
 - [B] 항목은 추측으로 판정하지 않는다.
@@ -45,7 +45,7 @@ ${docSection}${fileInfo}
       "id": 1,
       "requirement": "요건 요약",
       "quote": "결과물에서 찾은 부분 인용",
-      "result": "확인됨"
+      "result": "[충족]"
     }
   ],
   "bChecks": [
@@ -60,8 +60,8 @@ ${docSection}${fileInfo}
 }
 
 ## 판정 규칙
-- "확인됨"/"일부만 확인됨"/"확인되지 않음"은 결과물 텍스트에서 확인한 정도에 따라 쓴다.
-- 인용할 수 없으면 "확인됨"으로 판정하지 않는다.
+- "[충족]"/"[불충분]"/"[미충족]"은 결과물 텍스트에서 확인한 정도에 따라 쓴다.
+- 인용할 수 없으면 "[충족]"으로 판정하지 않는다.
 - "quote"는 실제 결과물에서 찾은 부분을 그대로 적는다. 찾지 못했으면 빈 문자열로 둔다.
 - [B] 항목은 판정하지 말고 "question"으로만 제시한다.
 - finalMessage에는 다음을 반영한다:
@@ -75,7 +75,7 @@ ${docSection}${fileInfo}
 - 결과 화면에서는 "~해요" 체의 부드러운 대화체로 보여준다.
 - 영어 단어를 섞지 않는다.
 - 사용자 화면에 보이는 용어는 내부 분류([A]/[B])를 그대로 노출하지 않고, "자동 확인 완료"/"직접 확인 필요"로 표시한다.
-- 판정값도 "내용 확인됨"/"일부만 확인됨"/"확인되지 않음" 형태로 표시한다.
+- 판정값도 "[충족]"/"[불충분]"/"[미충족]" 형태로 표시한다.
 
 ## 낮은 신뢰도 대응
 - 요강이 지나치게 짧거나 일부만 붙여넣은 것으로 보이면, "warning"에 "요강이 불완전해 보여요. 더 많은 요건이 있을 수 있어요." 비슷한 안내를 넣는다.
@@ -87,7 +87,7 @@ ${docSection}${fileInfo}
 
 function parseResult(content: string): {
   requirements: Array<{ id: number; text: string; source: string; type: 'A' | 'B'; strength: '필수' | '권장' }>;
-  aChecks: Array<{ id: number; requirement: string; quote: string; result: '확인됨' | '일부만 확인됨' | '확인되지 않음' }>;
+  aChecks: Array<{ id: number; requirement: string; quote: string; result: '[충족]' | '[불충분]' | '[미충족]' }>;
   bChecks: Array<{ id: number; requirement: string; question: string }>;
   finalMessage: string;
   warning?: string;
@@ -116,7 +116,7 @@ function parseResult(content: string): {
 
 function mockResult(): {
   requirements: Array<{ id: number; text: string; source: string; type: 'A' | 'B'; strength: '필수' | '권장' }>;
-  aChecks: Array<{ id: number; requirement: string; quote: string; result: '확인됨' | '일부만 확인됨' | '확인되지 않음' }>;
+  aChecks: Array<{ id: number; requirement: string; quote: string; result: '[충족]' | '[불충분]' | '[미충족]' }>;
   bChecks: Array<{ id: number; requirement: string; question: string }>;
   finalMessage: string;
   warning?: string;
@@ -132,7 +132,7 @@ function mockResult(): {
         id: 1,
         requirement: '결과물에 필수 항목이 포함되어야 함',
         quote: '결과물 본문에 필수 항목 내용이 포함되어 있음',
-        result: '확인됨',
+        result: '[충족]',
       },
     ],
     bChecks: [
