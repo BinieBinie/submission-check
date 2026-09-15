@@ -162,9 +162,70 @@ export default function Home() {
     setDocumentExtractError('');
   };
 
+  const SWAP_KEYWORDS_DOC_LIKE_IN_GUIDELINE = [
+    '포트폴리오',
+    '활동 계획서',
+    '예산 항목',
+    '참여 내역',
+    '기획 개요',
+    '기대 효과',
+    '콘텐츠 제작',
+  ];
+  const SWAP_KEYWORDS_GUIDELINE_LIKE_IN_DOC = [
+    '지원 자격',
+    '제출 마감',
+    '제출 방법',
+    '파일 형식',
+    '분량',
+    '폰트',
+    '모집',
+    '심사',
+    '제출물',
+  ];
+
+  const detectSwapSuspect = (guidelineText: string, documentText: string): boolean => {
+    if (!guidelineText.trim() || !documentText.trim()) return false;
+    let docLikeInGuideline = 0;
+    for (const kw of SWAP_KEYWORDS_DOC_LIKE_IN_GUIDELINE) {
+      if (guidelineText.includes(kw)) docLikeInGuideline += 1;
+    }
+    let guidelineLikeInDoc = 0;
+    for (const kw of SWAP_KEYWORDS_GUIDELINE_LIKE_IN_DOC) {
+      if (documentText.includes(kw)) guidelineLikeInDoc += 1;
+    }
+    return docLikeInGuideline >= 2 && guidelineLikeInDoc >= 2;
+  };
+
+  const handleSwap = () => {
+    const tmpGuidelines = guideline;
+    const tmpDocuments = document;
+    const tmpGuidelinePdfFile = guidelinePdfFile;
+    const tmpDocumentPdfFile = documentPdfFile;
+    const tmpGuidelinePdfText = guidelinePdfText;
+    const tmpDocumentPdfText = documentPdfText;
+    const tmpGuidelineExtractError = guidelineExtractError;
+    const tmpDocumentExtractError = documentExtractError;
+
+    setGuideline(tmpDocuments);
+    setDocument(tmpGuidelines);
+    setGuidelinePdfFile(tmpDocumentPdfFile);
+    setDocumentPdfFile(tmpGuidelinePdfFile);
+    setGuidelinePdfText(tmpDocumentPdfText);
+    setDocumentPdfText(tmpGuidelinePdfText);
+    setGuidelineExtractError(tmpDocumentExtractError);
+    setDocumentExtractError(tmpGuidelineExtractError);
+    setSwapWarn(false);
+    setResult(null);
+    setError('');
+  };
+
   const handleInspect = async () => {
-    const effectiveGuideline = guideline;
-    if (!effectiveGuideline.trim()) {
+    if (detectSwapSuspect(guideline, document)) {
+      setSwapWarn(true);
+      setError('');
+      return;
+    }
+    if (!guideline.trim()) {
       setError('요강을 입력해 주세요.');
       return;
     }
@@ -179,7 +240,7 @@ export default function Home() {
       }
 
       const body: Record<string, unknown> = {
-        guideline: effectiveGuideline,
+        guideline: guideline,
         document: effectiveDocument,
         mockMode,
         fileName: documentPdfFile?.name ?? guidelinePdfFile?.name ?? '',
@@ -364,6 +425,22 @@ export default function Home() {
       {error && (
         <div style={{ marginTop: 'var(--sp-sm)', padding: 'var(--sp-sm) var(--sp-md)', background: 'var(--canvas-soft)', border: '1px solid var(--hairline-soft)', borderRadius: 'var(--rounded-sm)', color: 'var(--ink)' }}>
           {error}
+        </div>
+      )}
+
+      {swapWarn && (
+        <div style={{ marginTop: 'var(--sp-sm)', padding: 'var(--sp-sm) var(--sp-md)', background: 'var(--canvas-soft)', border: '1px solid var(--hairline-soft)', borderRadius: 'var(--rounded-sm)', color: 'var(--ink)' }}>
+          <strong style={{ fontWeight: 'var(--fw-title)', fontSize: 'var(--fs-title)', color: 'var(--ink)' }}>입력 순서를 바꿔서 넣었을 수 있어요.</strong>
+          <div style={{ marginTop: 'var(--sp-xs)', color: 'var(--ink-soft)', fontSize: 'var(--fs-body-sm)' }}>
+            제출 요강 원문에 결과물 쪽 단어가, 결과물 본문에 요강 쪽 단어가 함께 보여서 두 입력이 서로 바뀐 것 같아요.
+          </div>
+          <button
+            type="button"
+            onClick={handleSwap}
+            style={{ marginTop: 'var(--sp-sm)', padding: '0px var(--sp-md)', fontFamily: 'var(--font-sans)', fontSize: 'var(--fs-link)', fontWeight: 'var(--fw-link)', color: 'var(--on-primary)', background: 'var(--ink)', border: 'none', borderRadius: 'var(--rounded-full)', cursor: 'pointer' }}
+          >
+            제출 요강과 결과물 순서를 바꾸기
+          </button>
         </div>
       )}
 
