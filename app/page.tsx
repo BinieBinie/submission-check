@@ -293,10 +293,12 @@ export default function Home() {
 
   return (
     <main style={{ background: 'var(--canvas)', padding: 'var(--sp-section) var(--sp-md)', fontFamily: 'var(--font-sans)', maxWidth: 'var(--max-width)', margin: '0 auto', boxSizing: 'border-box' }}>
+      <style>{`\n        @media (max-width: 640px) {\n          .input-grid { grid-template-columns: 1fr !important; }\n          .result-table { min-width: 100% !important; }\n          .logo-img { width: 140px !important; }\n        }\n      `}</style>
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: 'var(--sp-md)', marginBottom: 'var(--sp-md)' }}>
         <img
           src="/logo/naedodwae_logo_bang.svg"
           alt="내도돼 로고"
+          className="logo-img"
           style={{ width: 180, height: 'auto' }}
         />
         <p style={{ color: 'var(--text-muted)', fontSize: 'var(--fs-body)', fontWeight: 'var(--fw-body)', lineHeight: 'var(--lh-body)', textAlign: 'center', margin: 0 }}>
@@ -306,7 +308,7 @@ export default function Home() {
         </p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 'var(--sp-layout-gap)', marginBottom: 'var(--sp-lg)' }}>
+      <div className="input-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 'var(--sp-layout-gap)', marginBottom: 'var(--sp-lg)' }}>
         <section style={{ marginBottom: 0 }}>
           <label style={{ fontWeight: 'var(--fw-title)', fontSize: 'var(--fs-title)', color: 'var(--ink)', display: 'block', marginBottom: 'var(--sp-xs)' }}>제출 요강 원문</label>
           <textarea
@@ -482,7 +484,7 @@ export default function Home() {
 
           <div style={{ marginBottom: 'var(--sp-md)' }}>
             <h3 style={{ fontSize: 'var(--fs-h4)', fontWeight: 'var(--fw-h4)', lineHeight: 'var(--lh-h4)', color: 'var(--ink)', marginBottom: 'var(--sp-sm)' }}>1) 추출된 제출 요건.</h3>
-            <table style={{ width: '100%', minWidth: '470px', tableLayout: 'fixed', borderCollapse: 'collapse', fontSize: 'var(--fs-body-sm)', fontWeight: 'var(--fw-body-sm)' }}>
+            <table className="result-table" style={{ width: '100%', minWidth: '470px', tableLayout: 'fixed', borderCollapse: 'collapse', fontSize: 'var(--fs-body-sm)', fontWeight: 'var(--fw-body-sm)' }}>
               <thead>
                 <tr style={{ background: 'var(--canvas-soft)' }}>
                   <th style={{ textAlign: 'center', padding: '8px 10px', border: '1px solid var(--hairline)', whiteSpace: 'nowrap' }}>번호</th>
@@ -510,7 +512,7 @@ export default function Home() {
 
           <div style={{ marginBottom: 'var(--sp-md)' }}>
             <h3 style={{ fontSize: 'var(--fs-h4)', fontWeight: 'var(--fw-h4)', lineHeight: 'var(--lh-h4)', color: 'var(--ink)', marginBottom: 'var(--sp-sm)' }}>2) 자동 점검 결과.</h3>
-            <table style={{ width: '100%', minWidth: '410px', tableLayout: 'fixed', borderCollapse: 'collapse', fontSize: 'var(--fs-body-sm)', fontWeight: 'var(--fw-body-sm)' }}>
+            <table className="result-table" style={{ width: '100%', minWidth: '410px', tableLayout: 'fixed', borderCollapse: 'collapse', fontSize: 'var(--fs-body-sm)', fontWeight: 'var(--fw-body-sm)' }}>
               <thead>
                 <tr style={{ background: 'var(--canvas-soft)' }}>
                   <th style={{ textAlign: 'center', padding: '8px 10px', border: '1px solid var(--hairline)', whiteSpace: 'nowrap' }}>번호</th>
