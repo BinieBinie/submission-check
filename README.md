@@ -33,5 +33,5 @@ npm run dev
 
 ## 🎨 UI/Design Reference
 본 프로젝트의 UI 디자인 시스템(컬러, 타이포그래피, 컴포넌트 스타일 등)은 [getdesign.md](https://getdesign.md/mobbin/design-md)의 Mobbin Design System 토큰을 참고하여 구현되었습니다.
-- **Reference**: Mobbin Design System (`DESIGN.md`)
+- **Reference**: Mobbin Design System
 - **Source URL**: https://getdesign.md/mobbin/design-md
