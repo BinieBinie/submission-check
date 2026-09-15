@@ -30,5 +30,8 @@ npm run dev
 - 실제 키는 `.env.local`에만 넣고, `.env.example`이나 커밋에는 넣지 않습니다.
 - 키는 GitHub 저장소에 포함되지 않습니다.
 - 팀원 공유가 필요한 경우 키는 GitHub가 아닌 별도 채널로 전달하세요.
-EOF
-echo "README.md 업데이트 완료"
+
+## 🎨 UI/Design Reference
+본 프로젝트의 UI 디자인 시스템(컬러, 타이포그래피, 컴포넌트 스타일 등)은 [getdesign.md](https://getdesign.md/mobbin/design-md)의 Mobbin Design System 토큰을 참고하여 구현되었습니다.
+- **Reference**: Mobbin Design System
+- **Source URL**: https://getdesign.md/mobbin/design-md
