@@ -64,7 +64,9 @@ export default function Home() {
   const [documentExtractError, setDocumentExtractError] = useState('');
   const [isInspecting, setIsInspecting] = useState(false);
   const [result, setResult] = useState<InspectResult | null>(null);
+  const [bCheckChecked, setBCheckChecked] = useState<Record<number, boolean>>({});
   const [error, setError] = useState('');
+  const [swapWarn, setSwapWarn] = useState(false);
   const [mockMode, setMockMode] = useState(false);
 
   const saveToLocalStorage = useCallback(() => {
@@ -127,7 +129,7 @@ export default function Home() {
     setGuidelineExtractError('');
     try {
       const { text } = await extractPdfText(guidelinePdfFile);
-      setGuidelinePdfText(text);
+      setGuideline(text);
     } catch (e) {
       setGuidelineExtractError(String(e));
     } finally {
@@ -142,7 +144,7 @@ export default function Home() {
     try {
       const { text, pageCount } = await extractPdfText(documentPdfFile);
       const fileInfoLine = `파일: ${documentPdfFile.name} / 페이지 수: ${pageCount}\n`;
-      setDocumentPdfText(fileInfoLine + text);
+      setDocument(fileInfoLine + text);
     } catch (e) {
       setDocumentExtractError(String(e));
     } finally {
@@ -152,18 +154,16 @@ export default function Home() {
 
   const removeGuidelinePdf = () => {
     setGuidelinePdfFile(null);
-    setGuidelinePdfText('');
     setGuidelineExtractError('');
   };
 
   const removeDocumentPdf = () => {
     setDocumentPdfFile(null);
-    setDocumentPdfText('');
     setDocumentExtractError('');
   };
 
   const handleInspect = async () => {
-    const effectiveGuideline = guidelinePdfText.trim() ? guidelinePdfText : guideline;
+    const effectiveGuideline = guideline;
     if (!effectiveGuideline.trim()) {
       setError('요강을 입력해 주세요.');
       return;
@@ -172,7 +172,7 @@ export default function Home() {
     setResult(null);
     setIsInspecting(true);
     try {
-      const effectiveDocument = documentPdfText.trim() ? documentPdfText : document;
+      const effectiveDocument = document;
       if (!effectiveDocument.trim()) {
         setError('결과물 본문 또는 PDF 추출 텍스트가 필요해요.');
         return;
@@ -291,16 +291,6 @@ export default function Home() {
             {guidelineExtractError && (
               <div style={{ marginTop: 'var(--sp-xs)', color: 'var(--ink)', fontSize: 'var(--fs-caption)' }}>텍스트 추출에 실패했어요: {guidelineExtractError}</div>
             )}
-            {guidelinePdfText && (
-              <div style={{ marginTop: 'var(--sp-sm)' }}>
-                <div style={{ fontSize: 'var(--fs-caption)', color: 'var(--text-muted)', marginBottom: 'var(--sp-xs)' }}>추출한 요강 텍스트 (수정 가능):</div>
-                <textarea
-                  value={guidelinePdfText}
-                  onChange={(e) => setGuidelinePdfText(e.target.value)}
-                  style={{ width: '100%', minHeight: 120, padding: 'var(--sp-sm) var(--sp-md)', fontFamily: 'var(--font-sans)', fontSize: 'var(--fs-body-sm)', fontWeight: 'var(--fw-body-sm)', color: 'var(--ink)', background: 'var(--field)', border: 'none', borderRadius: 'var(--rounded-sm)', boxSizing: 'border-box' }}
-                />
-              </div>
-            )}
             {guidelinePdfFile && !guidelineIsExtracting && !guidelinePdfText && !guidelineExtractError && (
               <button
                 type="button"
@@ -357,16 +347,6 @@ export default function Home() {
             )}
             {documentExtractError && (
               <div style={{ marginTop: 'var(--sp-xs)', color: 'var(--ink)', fontSize: 'var(--fs-caption)' }}>텍스트 추출에 실패했어요: {documentExtractError}</div>
-            )}
-            {documentPdfText && (
-              <div style={{ marginTop: 'var(--sp-sm)' }}>
-                <div style={{ fontSize: 'var(--fs-caption)', color: 'var(--text-muted)', marginBottom: 'var(--sp-xs)' }}>추출한 결과물 텍스트 (수정 가능):</div>
-                <textarea
-                  value={documentPdfText}
-                  onChange={(e) => setDocumentPdfText(e.target.value)}
-                  style={{ width: '100%', minHeight: 120, padding: 'var(--sp-sm) var(--sp-md)', fontFamily: 'var(--font-sans)', fontSize: 'var(--fs-body-sm)', fontWeight: 'var(--fw-body-sm)', color: 'var(--ink)', background: 'var(--field)', border: 'none', borderRadius: 'var(--rounded-sm)', boxSizing: 'border-box' }}
-                />
-              </div>
             )}
             {documentPdfFile && !documentIsExtracting && !documentPdfText && !documentExtractError && (
               <button
@@ -480,7 +460,12 @@ export default function Home() {
             <ul style={{ listStyle: 'none', padding: 0, fontSize: 'var(--fs-body-sm)', fontWeight: 'var(--fw-body-sm)' }}>
               {result.bChecks.map((b) => (
                 <li key={b.id} style={{ marginBottom: 'var(--sp-sm)', paddingLeft: 'var(--sp-md)', display: 'flex', gap: 'var(--sp-sm)', alignItems: 'flex-start' }}>
-                  <span style={{ display: 'inline-block', width: 16, height: 16, border: '1px solid var(--ink)', borderRadius: 'var(--rounded-full)', flexShrink: 0, background: 'var(--canvas)' }} />
+                  <input
+                    type="checkbox"
+                    checked={bCheckChecked[b.id] ?? false}
+                    onChange={() => setBCheckChecked((prev) => ({ ...prev, [b.id]: !prev[b.id] }))}
+                    style={{ marginTop: 2, accentColor: 'var(--ink)', width: 16, height: 16, flexShrink: 0 }}
+                  />
                   <span style={{ color: 'var(--ink)' }}>{b.question}</span>
                 </li>
               ))}
