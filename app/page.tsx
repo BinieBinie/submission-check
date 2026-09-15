@@ -217,156 +217,169 @@ export default function Home() {
     clearLocalStorage();
   };
 
+  const EXAMPLE_GUIDELINE =
+    '콘텐츠 기획 공모전\n\n지원 자격: 만 19세 이상, 콘텐츠 기획 경험 1회 이상\n제출물: 활동 계획서 1부(PDF), 포트폴리오 1부(PDF)\n파일 형식: PDF만 인정\n분량: 활동 계획서 A4 2장 이내\n폰트: 본문 10pt 이상\n제출 마감: 2026년 9월 30일 18시\n제출 방법: 온라인 접수\n주의: 포트폴리오에 참여 내역을 반드시 기재, 활동 계획서에 예산 항목 포함\n';
+
+  const EXAMPLE_DOCUMENT =
+    '콘텐츠 기획 공모전 활동 계획서\n\n1. 기획 개요\n- 기획명: 온라인 콘텐츠 시리즈 기획\n- 목적: 타겟 사용자의 참여 유도 및 브랜드 인지도 확대\n- 대상: 만 19세 이상 콘텐츠 소비층\n\n2. 추진 배경\n- 최근 짧은 형식 콘텐츠의 소비량이 증가하고 있어, 시리즈형 기획이 적합하다고 판단함\n- 예산 내에서 반복 노출과 참여 유도를 함께 달성할 수 있는 구성이 필요함\n\n3. 추진 내용\n- 1회차: 기획 의도와 시리즈 구성 안내\n- 2회차: 참여형 콘텐츠 소개\n- 3회차: 결과 공유 및 후속 참여 유도\n- 발행 형식: 이미지+짧은 문구 중심\n- 발행 주기: 주 1회\n\n4. 예산 사용 계획\n- 콘텐츠 제작 비용\n- 참여 유도용 부가 자료 제작 비용\n- 성과 확인용 통계 도구 활용 비용\n\n5. 기대 효과\n- 시리즈 누적 노출을 통한 인지도 향상\n- 참여형 콘텐츠로 사용자 반응 확보\n- 후속 기획으로 연결 가능한 기반 마련\n';
+
+  const handleExample = () => {
+    setGuideline(EXAMPLE_GUIDELINE);
+    setDocument(EXAMPLE_DOCUMENT);
+    setResult(null);
+    setError('');
+  };
+
   return (
     <main style={{ background: 'var(--canvas)', padding: 'var(--sp-section) var(--sp-md)', fontFamily: 'var(--font-sans)', maxWidth: 'var(--max-width)', margin: '0 auto', boxSizing: 'border-box' }}>
-      <h1 style={{ fontSize: 'var(--fs-h1)', fontWeight: 'var(--fw-h1)', lineHeight: 'var(--lh-h1)', color: 'var(--ink)', marginBottom: 'var(--sp-md)' }}>제출 요건 준수 검사.</h1>
-      <p style={{ color: 'var(--text-muted)', fontSize: 'var(--fs-body-lg)', fontWeight: 'var(--fw-body-lg)', lineHeight: 'var(--lh-body-lg)' }}>
-        제출 요강과 제출물을 넣으면, 요강에서 요건을 뽑아내고 텍스트로 확인 가능한 항목만 판정해요.
-        PDF를 올리면 브라우저에서 텍스트를 뽑아 초안으로 보여주고, 필요하면 직접 수정할 수 있어요.
-        파일 형식, 페이지 수, 폰트처럼 텍스트만으로는 알 수 없는 항목은 직접 확인 체크리스트로 넘겨요.
-      </p>
-
-      <section style={{ marginTop: 'var(--sp-lg)' }}>
-        <label style={{ fontWeight: 'var(--fw-title)', fontSize: 'var(--fs-title)', color: 'var(--ink)', display: 'block', marginBottom: 'var(--sp-xs)' }}>제출 요강 원문</label>
-        <textarea
-          value={guideline}
-          onChange={(e) => handleGuidelineChange(e.target.value)}
-          placeholder="제출 요강/모집공고 원문을 붙여넣으세요."
-          style={{ width: '100%', minHeight: 180, padding: 'var(--sp-sm) var(--sp-md)', fontFamily: 'var(--font-sans)', fontSize: 'var(--fs-body-sm)', fontWeight: 'var(--fw-body-sm)', color: 'var(--ink)', background: 'var(--field)', border: 'none', borderRadius: 'var(--rounded-sm)', boxSizing: 'border-box' }}
+      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: 'var(--sp-md)', marginBottom: 'var(--sp-md)' }}>
+        <img
+          src="/logo/naedodwae_logo_bang.svg"
+          alt="내도돼 로고"
+          style={{ width: 180, height: 'auto' }}
         />
-        <div style={{ marginTop: 8, display: 'flex', gap: 10, alignItems: 'center' }}>
-          <button
-              type="button"
-              onClick={handleClear}
-              style={{ padding: '0px var(--sp-md)', fontFamily: 'var(--font-sans)', fontSize: 'var(--fs-link)', fontWeight: 'var(--fw-link)', color: 'var(--ink)', background: 'var(--canvas)', border: '1px solid var(--hairline)', borderRadius: 'var(--rounded-full)', cursor: 'pointer' }}
-            >입력 초기화</button>
-          <span style={{ fontSize: 'var(--fs-label)', color: 'var(--text-muted)' }}>초안은 브라우저에만 저장돼요.</span>
-        </div>
-        <div style={{ marginTop: 'var(--sp-sm)', padding: 'var(--sp-lg)', border: '1px solid var(--hairline-soft)', borderRadius: 'var(--rounded-md)', background: 'var(--canvas)' }}>
-          <div style={{ fontWeight: 'var(--fw-title)', fontSize: 'var(--fs-title)', color: 'var(--ink)', marginBottom: 'var(--sp-xs)' }}>PDF 업로드 - 제출 요강 (선택)</div>
-          <p style={{ fontSize: 'var(--fs-caption)', color: 'var(--text-muted)', marginBottom: 'var(--sp-sm)', lineHeight: 'var(--lh-caption)' }}>
-            요강을 PDF로 올렸다면 여기서 텍스트를 뽑아 초안으로 바꿀 수 있어요.
-          </p>
-          {guidelinePdfFile && (
-            <div style={{ marginBottom: 'var(--sp-sm)', fontSize: 'var(--fs-caption)', color: 'var(--text-muted)' }}>
-              업로드됨: <span style={{ fontWeight: 'var(--fw-label)', color: 'var(--ink)' }}>{guidelinePdfFile.name}</span>
-            </div>
-          )}
-          <input
-            type="file"
-            accept=".pdf"
-            onChange={(e) => {
-              const file = e.target.files?.[0] ?? null;
-              if (file) {
-                setGuidelinePdfFile(file);
-                setGuidelinePdfText('');
-                setGuidelineExtractError('');
-              }
-            }}
-          />
-          <div style={{ marginTop: 'var(--sp-xs)', fontSize: 'var(--fs-caption)', color: 'var(--text-faint)' }}>.hwp 파일은 직접 읽을 수 없어요.</div>
-          <button
-              type="button"
-              onClick={handleExtractGuidelinePdf}
-              disabled={guidelineIsExtracting}
-              style={{ marginTop: 'var(--sp-sm)', padding: '0px var(--sp-md)', fontFamily: 'var(--font-sans)', fontSize: 'var(--fs-link)', fontWeight: 'var(--fw-link)', color: 'var(--ink)', background: guidelineIsExtracting ? 'var(--canvas-soft)' : 'var(--canvas)', border: '1px solid var(--hairline)', borderRadius: 'var(--rounded-full)', cursor: guidelineIsExtracting ? 'not-allowed' : 'pointer' }}
-            >
-              {guidelineIsExtracting ? '텍스트 추출 중...' : 'PDF 텍스트 추출'}
-            </button>
-          {guidelineIsExtracting && (
-            <div style={{ marginTop: 'var(--sp-xs)', color: 'var(--text-muted)', fontSize: 'var(--fs-caption)' }}>PDF 텍스트를 추출 중입니다.</div>
-          )}
-          {guidelineExtractError && (
-            <div style={{ marginTop: 'var(--sp-xs)', color: 'var(--ink)', fontSize: 'var(--fs-caption)' }}>텍스트 추출에 실패했어요: {guidelineExtractError}</div>
-          )}
-          {guidelinePdfText && (
-            <div style={{ marginTop: 'var(--sp-sm)' }}>
-              <div style={{ fontSize: 'var(--fs-caption)', color: 'var(--text-muted)', marginBottom: 'var(--sp-xs)' }}>추출한 요강 텍스트 (수정 가능):</div>
-              <textarea
-                value={guidelinePdfText}
-                onChange={(e) => setGuidelinePdfText(e.target.value)}
-                style={{ width: '100%', minHeight: 120, padding: 'var(--sp-sm) var(--sp-md)', fontFamily: 'var(--font-sans)', fontSize: 'var(--fs-body-sm)', fontWeight: 'var(--fw-body-sm)', color: 'var(--ink)', background: 'var(--field)', border: 'none', borderRadius: 'var(--rounded-sm)', boxSizing: 'border-box' }}
-              />
-            </div>
-          )}
-          {guidelinePdfFile && !guidelineIsExtracting && !guidelinePdfText && !guidelineExtractError && (
-            <button
-              type="button"
-              onClick={removeGuidelinePdf}
-              style={{ marginTop: 'var(--sp-md)', padding: '0px var(--sp-sm) var(--sp-md)', fontFamily: 'var(--font-sans)', fontSize: 'var(--fs-body-sm)', fontWeight: 'var(--fw-body-sm)', color: 'var(--ink)', background: 'var(--canvas)', border: '1px solid var(--hairline)', borderRadius: 'var(--rounded-full)', cursor: 'pointer' }}
-            >
-              업로드 제거
-            </button>
-          )}
-        </div>
-      </section>
+        <p style={{ color: 'var(--text-muted)', fontSize: 'var(--fs-body)', fontWeight: 'var(--fw-body)', lineHeight: 'var(--lh-body)', textAlign: 'center', margin: 0 }}>
+          제출 요강과 제출물을 넣으면, 요강에서 요건을 뽑아내고 텍스트로 확인 가능한 항목만 판정해요.<br />
+          PDF를 올리면 브라우저에서 텍스트를 뽑아 초안으로 보여주고, 필요하면 직접 수정할 수 있어요.<br />
+          파일 형식, 페이지 수, 폰트처럼 텍스트만으로는 알 수 없는 항목은 직접 확인 체크리스트로 넘겨요.
+        </p>
+      </div>
 
-      <section style={{ marginTop: 'var(--sp-lg)' }}>
-        <label style={{ fontWeight: 'var(--fw-title)', fontSize: 'var(--fs-title)', color: 'var(--ink)', display: 'block', marginBottom: 'var(--sp-xs)' }}>제출할 결과물 본문</label>
-        <textarea
-          value={document}
-          onChange={(e) => handleDocumentChange(e.target.value)}
-          placeholder="제출할 결과물 본문을 붙여넣으세요. PDF를 올렸다가 텍스트로 바꿔 넣어도 돼요."
-          style={{ width: '100%', minHeight: 220, padding: 'var(--sp-sm) var(--sp-md)', fontFamily: 'var(--font-sans)', fontSize: 'var(--fs-body-sm)', fontWeight: 'var(--fw-body-sm)', color: 'var(--ink)', background: 'var(--field)', border: 'none', borderRadius: 'var(--rounded-sm)', boxSizing: 'border-box' }}
-        />
-        <div style={{ marginTop: 'var(--sp-sm)', padding: 'var(--sp-lg)', border: '1px solid var(--hairline-soft)', borderRadius: 'var(--rounded-md)', background: 'var(--canvas)' }}>
-          <div style={{ fontWeight: 'var(--fw-title)', fontSize: 'var(--fs-title)', color: 'var(--ink)', marginBottom: 'var(--sp-xs)' }}>PDF 업로드 - 제출 결과물 (선택)</div>
-          <p style={{ fontSize: 'var(--fs-caption)', color: 'var(--text-muted)', marginBottom: 'var(--sp-sm)', lineHeight: 'var(--lh-caption)' }}>
-            결과물이 PDF면 여기서 텍스트를 뽑아 초안으로 바꿀 수 있어요.
-          </p>
-          {documentPdfFile && (
-            <div style={{ marginBottom: 'var(--sp-sm)', fontSize: 'var(--fs-caption)', color: 'var(--text-muted)' }}>
-              업로드됨: <span style={{ fontWeight: 'var(--fw-label)', color: 'var(--ink)' }}>{documentPdfFile.name}</span>
-            </div>
-          )}
-          <input
-            type="file"
-            accept=".pdf"
-            onChange={(e) => {
-              const file = e.target.files?.[0] ?? null;
-              if (file) {
-                setDocumentPdfFile(file);
-                setDocumentPdfText('');
-                setDocumentExtractError('');
-              }
-            }}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 'var(--sp-layout-gap)', marginBottom: 'var(--sp-lg)' }}>
+        <section style={{ marginBottom: 0 }}>
+          <label style={{ fontWeight: 'var(--fw-title)', fontSize: 'var(--fs-title)', color: 'var(--ink)', display: 'block', marginBottom: 'var(--sp-xs)' }}>제출 요강 원문</label>
+          <textarea
+            value={guideline}
+            onChange={(e) => handleGuidelineChange(e.target.value)}
+            placeholder="제출 요강/모집공고 원문을 붙여넣으세요."
+            style={{ width: '100%', minHeight: 220, padding: 'var(--sp-sm) var(--sp-md)', fontFamily: 'var(--font-sans)', fontSize: 'var(--fs-body-sm)', fontWeight: 'var(--fw-body-sm)', color: 'var(--ink)', background: 'var(--field)', border: 'none', borderRadius: 'var(--rounded-sm)', boxSizing: 'border-box' }}
           />
-          <div style={{ marginTop: 'var(--sp-xs)', fontSize: 'var(--fs-caption)', color: 'var(--text-faint)' }}>.hwp 파일은 직접 읽을 수 없어요.</div>
-          <button
-              type="button"
-              onClick={handleExtractDocumentPdf}
-              disabled={documentIsExtracting}
-              style={{ marginTop: 'var(--sp-sm)', padding: '0px var(--sp-md)', fontFamily: 'var(--font-sans)', fontSize: 'var(--fs-link)', fontWeight: 'var(--fw-link)', color: 'var(--ink)', background: documentIsExtracting ? 'var(--canvas-soft)' : 'var(--canvas)', border: '1px solid var(--hairline)', borderRadius: 'var(--rounded-full)', cursor: documentIsExtracting ? 'not-allowed' : 'pointer' }}
-            >
-              {documentIsExtracting ? '텍스트 추출 중...' : 'PDF 텍스트 추출'}
-            </button>
-          {documentIsExtracting && (
-            <div style={{ marginTop: 'var(--sp-xs)', color: 'var(--text-muted)', fontSize: 'var(--fs-caption)' }}>PDF 텍스트를 추출 중입니다.</div>
-          )}
-          {documentExtractError && (
-            <div style={{ marginTop: 'var(--sp-xs)', color: 'var(--ink)', fontSize: 'var(--fs-caption)' }}>텍스트 추출에 실패했어요: {documentExtractError}</div>
-          )}
-          {documentPdfText && (
-            <div style={{ marginTop: 'var(--sp-sm)' }}>
-              <div style={{ fontSize: 'var(--fs-caption)', color: 'var(--text-muted)', marginBottom: 'var(--sp-xs)' }}>추출한 결과물 텍스트 (수정 가능):</div>
-              <textarea
-                value={documentPdfText}
-                onChange={(e) => setDocumentPdfText(e.target.value)}
-                style={{ width: '100%', minHeight: 120, padding: 'var(--sp-sm) var(--sp-md)', fontFamily: 'var(--font-sans)', fontSize: 'var(--fs-body-sm)', fontWeight: 'var(--fw-body-sm)', color: 'var(--ink)', background: 'var(--field)', border: 'none', borderRadius: 'var(--rounded-sm)', boxSizing: 'border-box' }}
-              />
-            </div>
-          )}
-          {documentPdfFile && !documentIsExtracting && !documentPdfText && !documentExtractError && (
+          <div style={{ marginTop: 'var(--sp-sm)', padding: 'var(--sp-lg)', border: '1px solid var(--hairline-soft)', borderRadius: 'var(--rounded-md)', background: 'var(--canvas)' }}>
+            <div style={{ fontWeight: 'var(--fw-title)', fontSize: 'var(--fs-title)', color: 'var(--ink)', marginBottom: 'var(--sp-xs)' }}>PDF 업로드 - 제출 요강 (선택)</div>
+            <p style={{ fontSize: 'var(--fs-caption)', color: 'var(--text-muted)', marginBottom: 'var(--sp-sm)', lineHeight: 'var(--lh-caption)' }}>
+              요강을 PDF로 올렸다면 여기서 텍스트를 뽑아 초안으로 바꿀 수 있어요.
+            </p>
+            {guidelinePdfFile && (
+              <div style={{ marginBottom: 'var(--sp-sm)', fontSize: 'var(--fs-caption)', color: 'var(--text-muted)' }}>
+                업로드됨: <span style={{ fontWeight: 'var(--fw-label)', color: 'var(--ink)' }}>{guidelinePdfFile.name}</span>
+              </div>
+            )}
+            <input
+              type="file"
+              accept=".pdf"
+              onChange={(e) => {
+                const file = e.target.files?.[0] ?? null;
+                if (file) {
+                  setGuidelinePdfFile(file);
+                  setGuidelinePdfText('');
+                  setGuidelineExtractError('');
+                }
+              }}
+            />
+            <div style={{ marginTop: 'var(--sp-xs)', fontSize: 'var(--fs-caption)', color: 'var(--text-faint)' }}>.hwp 파일은 직접 읽을 수 없어요.</div>
             <button
-              type="button"
-              onClick={removeDocumentPdf}
-              style={{ marginTop: 'var(--sp-md)', padding: '0px var(--sp-sm) var(--sp-md)', fontFamily: 'var(--font-sans)', fontSize: 'var(--fs-body-sm)', fontWeight: 'var(--fw-body-sm)', color: 'var(--ink)', background: 'var(--canvas)', border: '1px solid var(--hairline)', borderRadius: 'var(--rounded-full)', cursor: 'pointer' }}
-            >
-              업로드 제거
-            </button>
-          )}
-        </div>
-      </section>
+                type="button"
+                onClick={handleExtractGuidelinePdf}
+                disabled={guidelineIsExtracting}
+                style={{ marginTop: '36px', padding: '0px var(--sp-md)', fontFamily: 'var(--font-sans)', fontSize: 'var(--fs-link)', fontWeight: 'var(--fw-link)', color: 'var(--ink)', background: guidelineIsExtracting ? 'var(--canvas-soft)' : 'var(--canvas)', border: '1px solid var(--hairline)', borderRadius: 'var(--rounded-full)', cursor: guidelineIsExtracting ? 'not-allowed' : 'pointer' }}
+              >
+                {guidelineIsExtracting ? '텍스트 추출 중...' : 'PDF 텍스트 추출'}
+              </button>
+            {guidelineIsExtracting && (
+              <div style={{ marginTop: 'var(--sp-xs)', color: 'var(--text-muted)', fontSize: 'var(--fs-caption)' }}>PDF 텍스트를 추출 중입니다.</div>
+            )}
+            {guidelineExtractError && (
+              <div style={{ marginTop: 'var(--sp-xs)', color: 'var(--ink)', fontSize: 'var(--fs-caption)' }}>텍스트 추출에 실패했어요: {guidelineExtractError}</div>
+            )}
+            {guidelinePdfText && (
+              <div style={{ marginTop: 'var(--sp-sm)' }}>
+                <div style={{ fontSize: 'var(--fs-caption)', color: 'var(--text-muted)', marginBottom: 'var(--sp-xs)' }}>추출한 요강 텍스트 (수정 가능):</div>
+                <textarea
+                  value={guidelinePdfText}
+                  onChange={(e) => setGuidelinePdfText(e.target.value)}
+                  style={{ width: '100%', minHeight: 120, padding: 'var(--sp-sm) var(--sp-md)', fontFamily: 'var(--font-sans)', fontSize: 'var(--fs-body-sm)', fontWeight: 'var(--fw-body-sm)', color: 'var(--ink)', background: 'var(--field)', border: 'none', borderRadius: 'var(--rounded-sm)', boxSizing: 'border-box' }}
+                />
+              </div>
+            )}
+            {guidelinePdfFile && !guidelineIsExtracting && !guidelinePdfText && !guidelineExtractError && (
+              <button
+                type="button"
+                onClick={removeGuidelinePdf}
+                style={{ marginTop: '48px', padding: '0px var(--sp-md)', fontFamily: 'var(--font-sans)', fontSize: 'var(--fs-link)', fontWeight: 'var(--fw-link)', color: 'var(--ink)', background: 'var(--canvas)', border: '1px solid var(--hairline)', borderRadius: 'var(--rounded-full)', cursor: 'pointer' }}
+              >
+                업로드 제거
+              </button>
+            )}
+          </div>
+        </section>
+
+        <section style={{ marginBottom: 0 }}>
+          <label style={{ fontWeight: 'var(--fw-title)', fontSize: 'var(--fs-title)', color: 'var(--ink)', display: 'block', marginBottom: 'var(--sp-xs)' }}>제출할 결과물 본문</label>
+          <textarea
+            value={document}
+            onChange={(e) => handleDocumentChange(e.target.value)}
+            placeholder="제출할 결과물 본문을 붙여넣으세요. PDF를 올렸다가 텍스트로 바꿔 넣어도 돼요."
+            style={{ width: '100%', minHeight: 220, padding: 'var(--sp-sm) var(--sp-md)', fontFamily: 'var(--font-sans)', fontSize: 'var(--fs-body-sm)', fontWeight: 'var(--fw-body-sm)', color: 'var(--ink)', background: 'var(--field)', border: 'none', borderRadius: 'var(--rounded-sm)', boxSizing: 'border-box' }}
+          />
+          <div style={{ marginTop: 'var(--sp-sm)', padding: 'var(--sp-lg)', border: '1px solid var(--hairline-soft)', borderRadius: 'var(--rounded-md)', background: 'var(--canvas)' }}>
+            <div style={{ fontWeight: 'var(--fw-title)', fontSize: 'var(--fs-title)', color: 'var(--ink)', marginBottom: 'var(--sp-xs)' }}>PDF 업로드 - 제출 결과물 (선택)</div>
+            <p style={{ fontSize: 'var(--fs-caption)', color: 'var(--text-muted)', marginBottom: 'var(--sp-sm)', lineHeight: 'var(--lh-caption)' }}>
+              결과물이 PDF면 여기서 텍스트를 뽑아 초안으로 바꿀 수 있어요.
+            </p>
+            {documentPdfFile && (
+              <div style={{ marginBottom: 'var(--sp-sm)', fontSize: 'var(--fs-caption)', color: 'var(--text-muted)' }}>
+                업로드됨: <span style={{ fontWeight: 'var(--fw-label)', color: 'var(--ink)' }}>{documentPdfFile.name}</span>
+              </div>
+            )}
+            <input
+              type="file"
+              accept=".pdf"
+              onChange={(e) => {
+                const file = e.target.files?.[0] ?? null;
+                if (file) {
+                  setDocumentPdfFile(file);
+                  setDocumentPdfText('');
+                  setDocumentExtractError('');
+                }
+              }}
+            />
+            <div style={{ marginTop: 'var(--sp-xs)', fontSize: 'var(--fs-caption)', color: 'var(--text-faint)' }}>.hwp 파일은 직접 읽을 수 없어요.</div>
+            <button
+                type="button"
+                onClick={handleExtractDocumentPdf}
+                disabled={documentIsExtracting}
+                style={{ marginTop: '36px', padding: '0px var(--sp-md)', fontFamily: 'var(--font-sans)', fontSize: 'var(--fs-link)', fontWeight: 'var(--fw-link)', color: 'var(--ink)', background: documentIsExtracting ? 'var(--canvas-soft)' : 'var(--canvas)', border: '1px solid var(--hairline)', borderRadius: 'var(--rounded-full)', cursor: documentIsExtracting ? 'not-allowed' : 'pointer' }}
+              >
+                {documentIsExtracting ? '텍스트 추출 중...' : 'PDF 텍스트 추출'}
+              </button>
+            {documentIsExtracting && (
+              <div style={{ marginTop: 'var(--sp-xs)', color: 'var(--text-muted)', fontSize: 'var(--fs-caption)' }}>PDF 텍스트를 추출 중입니다.</div>
+            )}
+            {documentExtractError && (
+              <div style={{ marginTop: 'var(--sp-xs)', color: 'var(--ink)', fontSize: 'var(--fs-caption)' }}>텍스트 추출에 실패했어요: {documentExtractError}</div>
+            )}
+            {documentPdfText && (
+              <div style={{ marginTop: 'var(--sp-sm)' }}>
+                <div style={{ fontSize: 'var(--fs-caption)', color: 'var(--text-muted)', marginBottom: 'var(--sp-xs)' }}>추출한 결과물 텍스트 (수정 가능):</div>
+                <textarea
+                  value={documentPdfText}
+                  onChange={(e) => setDocumentPdfText(e.target.value)}
+                  style={{ width: '100%', minHeight: 120, padding: 'var(--sp-sm) var(--sp-md)', fontFamily: 'var(--font-sans)', fontSize: 'var(--fs-body-sm)', fontWeight: 'var(--fw-body-sm)', color: 'var(--ink)', background: 'var(--field)', border: 'none', borderRadius: 'var(--rounded-sm)', boxSizing: 'border-box' }}
+                />
+              </div>
+            )}
+            {documentPdfFile && !documentIsExtracting && !documentPdfText && !documentExtractError && (
+              <button
+                type="button"
+                onClick={removeDocumentPdf}
+                style={{ marginTop: '48px', padding: '0px var(--sp-md)', fontFamily: 'var(--font-sans)', fontSize: 'var(--fs-link)', fontWeight: 'var(--fw-link)', color: 'var(--ink)', background: 'var(--canvas)', border: '1px solid var(--hairline)', borderRadius: 'var(--rounded-full)', cursor: 'pointer' }}
+              >
+                업로드 제거
+              </button>
+            )}
+          </div>
+        </section>
+      </div>
 
       {error && (
         <div style={{ marginTop: 'var(--sp-sm)', padding: 'var(--sp-sm) var(--sp-md)', background: 'var(--canvas-soft)', border: '1px solid var(--hairline-soft)', borderRadius: 'var(--rounded-sm)', color: 'var(--ink)' }}>
@@ -383,14 +396,20 @@ export default function Home() {
         >
           {isInspecting ? '검사 중...' : '검사 실행'}
         </button>
-        <label style={{ fontSize: 'var(--fs-label)', color: 'var(--ink)', display: 'flex', alignItems: 'center', gap: 'var(--sp-xs)', cursor: 'pointer' }}>
-          <input
-            type="checkbox"
-            checked={mockMode}
-            onChange={(e) => setMockMode(e.target.checked)}
-          />
-          키 없이 흐름만 확인(모의 응답)
-        </label>
+        <button
+          type="button"
+          onClick={handleClear}
+          style={{ padding: '0px var(--sp-md)', fontFamily: 'var(--font-sans)', fontSize: 'var(--fs-link)', fontWeight: 'var(--fw-link)', color: 'var(--ink)', background: 'var(--canvas)', border: '1px solid var(--hairline)', borderRadius: 'var(--rounded-full)', cursor: 'pointer' }}
+        >
+          입력 초기화
+        </button>
+        <button
+          type="button"
+          onClick={handleExample}
+          style={{ padding: '0px var(--sp-md)', fontFamily: 'var(--font-sans)', fontSize: 'var(--fs-link)', fontWeight: 'var(--fw-link)', color: 'var(--ink)', background: 'var(--canvas)', border: '1px solid var(--hairline)', borderRadius: 'var(--rounded-full)', cursor: 'pointer' }}
+        >
+          예시 보기
+        </button>
       </section>
 
       {result && (
@@ -409,23 +428,23 @@ export default function Home() {
             <table style={{ width: '100%', minWidth: '470px', tableLayout: 'fixed', borderCollapse: 'collapse', fontSize: 'var(--fs-body-sm)', fontWeight: 'var(--fw-body-sm)' }}>
               <thead>
                 <tr style={{ background: 'var(--canvas-soft)' }}>
-                  <th style={{ textAlign: 'center', padding: 'var(--sp-sm) var(--sp-md)', border: '1px solid var(--hairline)', whiteSpace: 'nowrap' }}>번호</th>
-                  <th style={{ textAlign: 'center', padding: 'var(--sp-sm) var(--sp-md)', border: '1px solid var(--hairline)', whiteSpace: 'nowrap' }}>요건</th>
-                  <th style={{ textAlign: 'center', padding: 'var(--sp-sm) var(--sp-md)', border: '1px solid var(--hairline)', whiteSpace: 'nowrap' }}>요강 원문 인용</th>
-                  <th style={{ textAlign: 'center', padding: 'var(--sp-sm) var(--sp-md)', border: '1px solid var(--hairline)', whiteSpace: 'nowrap' }}>구분</th>
-                  <th style={{ textAlign: 'center', padding: 'var(--sp-sm) var(--sp-md)', border: '1px solid var(--hairline)', whiteSpace: 'nowrap' }}>강제성</th>
+                  <th style={{ textAlign: 'center', padding: '8px 10px', border: '1px solid var(--hairline)', whiteSpace: 'nowrap' }}>번호</th>
+                  <th style={{ textAlign: 'center', padding: '8px 10px', border: '1px solid var(--hairline)', whiteSpace: 'nowrap' }}>요건</th>
+                  <th style={{ textAlign: 'center', padding: '8px 10px', border: '1px solid var(--hairline)', whiteSpace: 'nowrap' }}>요강 원문 인용</th>
+                  <th style={{ textAlign: 'center', padding: '8px 10px', border: '1px solid var(--hairline)', whiteSpace: 'nowrap' }}>구분</th>
+                  <th style={{ textAlign: 'center', padding: '8px 10px', border: '1px solid var(--hairline)', whiteSpace: 'nowrap' }}>강제성</th>
                 </tr>
               </thead>
               <tbody>
               {result.requirements.map((r) => (
                  <tr key={r.id} style={{ borderBottom: '1px solid var(--hairline)' }}>
-                   <td style={{ padding: 'var(--sp-sm) var(--sp-md)', border: '1px solid var(--hairline)' }}>{r.id}</td>
-                   <td style={{ padding: 'var(--sp-sm) var(--sp-md)', border: '1px solid var(--hairline)' }}>{r.text}</td>
-                   <td style={{ padding: 'var(--sp-sm) var(--sp-md)', border: '1px solid var(--hairline)' }}>{r.source}</td>
-                   <td style={{ padding: 'var(--sp-sm) var(--sp-md)', border: '1px solid var(--hairline)', textAlign: 'left' }}>
+                   <td style={{ padding: '8px 10px', border: '1px solid var(--hairline)' }}>{r.id}</td>
+                   <td style={{ padding: '8px 10px', border: '1px solid var(--hairline)' }}>{r.text}</td>
+                   <td style={{ padding: '8px 10px', border: '1px solid var(--hairline)' }}>{r.source}</td>
+                   <td style={{ padding: '8px 10px', border: '1px solid var(--hairline)', textAlign: 'left' }}>
                      {r.type === 'A' ? <span style={{ color: 'var(--result-pass-text)', fontWeight: 'var(--fw-title)' }}>자동 확인 완료</span> : <span style={{ color: 'var(--text-muted)', fontWeight: 'var(--fw-label)' }}>직접 확인 필요</span>}
                    </td>
-                   <td style={{ padding: 'var(--sp-sm) var(--sp-md)', border: '1px solid var(--hairline)' }}>{r.strength}</td>
+                   <td style={{ padding: '8px 10px', border: '1px solid var(--hairline)' }}>{r.strength}</td>
                  </tr>
                ))}
                </tbody>
@@ -437,19 +456,19 @@ export default function Home() {
             <table style={{ width: '100%', minWidth: '410px', tableLayout: 'fixed', borderCollapse: 'collapse', fontSize: 'var(--fs-body-sm)', fontWeight: 'var(--fw-body-sm)' }}>
               <thead>
                 <tr style={{ background: 'var(--canvas-soft)' }}>
-                  <th style={{ textAlign: 'center', padding: 'var(--sp-sm) var(--sp-md)', border: '1px solid var(--hairline)', whiteSpace: 'nowrap' }}>번호</th>
-                  <th style={{ textAlign: 'center', padding: 'var(--sp-sm) var(--sp-md)', border: '1px solid var(--hairline)', whiteSpace: 'nowrap' }}>요건</th>
-                  <th style={{ textAlign: 'center', padding: 'var(--sp-sm) var(--sp-md)', border: '1px solid var(--hairline)', whiteSpace: 'nowrap' }}>결과물에서 찾은 부분(인용)</th>
-                  <th style={{ textAlign: 'center', padding: 'var(--sp-sm) var(--sp-md)', border: '1px solid var(--hairline)', whiteSpace: 'nowrap' }}>판정</th>
+                  <th style={{ textAlign: 'center', padding: '8px 10px', border: '1px solid var(--hairline)', whiteSpace: 'nowrap' }}>번호</th>
+                  <th style={{ textAlign: 'center', padding: '8px 10px', border: '1px solid var(--hairline)', whiteSpace: 'nowrap' }}>요건</th>
+                  <th style={{ textAlign: 'center', padding: '8px 10px', border: '1px solid var(--hairline)', whiteSpace: 'nowrap' }}>결과물에서 찾은 부분(인용)</th>
+                  <th style={{ textAlign: 'center', padding: '8px 10px', border: '1px solid var(--hairline)', whiteSpace: 'nowrap' }}>판정</th>
                 </tr>
               </thead>
               <tbody>
               {result.aChecks.map((c) => (
                  <tr key={c.id} style={{ borderBottom: '1px solid var(--hairline)' }}>
-                   <td style={{ padding: 'var(--sp-sm) var(--sp-md)', border: '1px solid var(--hairline)' }}>{c.id}</td>
-                   <td style={{ padding: 'var(--sp-sm) var(--sp-md)', border: '1px solid var(--hairline)' }}>{c.requirement}</td>
-                   <td style={{ padding: 'var(--sp-sm) var(--sp-md)', border: '1px solid var(--hairline)' }}>{c.quote || '관련 부분 없음'}</td>
-                   <td style={{ padding: 'var(--sp-sm) var(--sp-md)', border: '1px solid var(--hairline)', textAlign: 'center', fontWeight: 'var(--fw-title)', fontSize: 'var(--fs-title)', background: c.result === '[충족]' ? 'var(--result-pass-bg)' : c.result === '[불충분]' ? 'var(--result-partial-bg)' : 'var(--result-fail-bg)', color: c.result === '[충족]' ? 'var(--result-pass-text)' : c.result === '[불충분]' ? 'var(--result-partial-text)' : 'var(--result-fail-text)' }}>{c.result}</td>
+                   <td style={{ padding: '8px 10px', border: '1px solid var(--hairline)' }}>{c.id}</td>
+                   <td style={{ padding: '8px 10px', border: '1px solid var(--hairline)' }}>{c.requirement}</td>
+                   <td style={{ padding: '8px 10px', border: '1px solid var(--hairline)' }}>{c.quote || '관련 부분 없음'}</td>
+                   <td style={{ padding: '8px 10px', border: '1px solid var(--hairline)', textAlign: 'center', fontWeight: 'var(--fw-title)', fontSize: 'var(--fs-title)', background: c.result === '[충족]' ? 'var(--result-pass-bg)' : c.result === '[불충분]' ? 'var(--result-partial-bg)' : 'var(--result-fail-bg)', color: c.result === '[충족]' ? 'var(--result-pass-text)' : c.result === '[불충분]' ? 'var(--result-partial-text)' : 'var(--result-fail-text)' }}>{c.result}</td>
                  </tr>
                ))}
                </tbody>
