@@ -380,7 +380,7 @@ export default function Home() {
               disabled={guidelineIsExtracting}
               style={{ marginTop: '36px', padding: '0px var(--sp-md)', fontFamily: 'var(--font-sans)', fontSize: 'var(--fs-link)', fontWeight: 'var(--fw-link)', color: 'var(--ink)', background: guidelineIsExtracting ? 'var(--canvas-soft)' : 'var(--canvas)', border: '1px solid var(--hairline)', borderRadius: 'var(--rounded-full)', cursor: guidelineIsExtracting ? 'not-allowed' : 'pointer' }}
             >
-              {guidelineIsExtracting ? '텍스트 추출 중...' : '텍스트 추출(OCR 포함)'}
+              {guidelineIsExtracting ? '텍스트 추출 중...' : '텍스트 추출'}
             </button>
             {guidelineIsExtracting && (
               <div style={{ marginTop: 'var(--sp-xs)', color: 'var(--text-muted)', fontSize: 'var(--fs-caption)' }}>
@@ -438,7 +438,7 @@ export default function Home() {
               disabled={documentIsExtracting}
               style={{ marginTop: '36px', padding: '0px var(--sp-md)', fontFamily: 'var(--font-sans)', fontSize: 'var(--fs-link)', fontWeight: 'var(--fw-link)', color: 'var(--ink)', background: documentIsExtracting ? 'var(--canvas-soft)' : 'var(--canvas)', border: '1px solid var(--hairline)', borderRadius: 'var(--rounded-full)', cursor: documentIsExtracting ? 'not-allowed' : 'pointer' }}
             >
-              {documentIsExtracting ? '텍스트 추출 중...' : '텍스트 추출(OCR 포함)'}
+              {documentIsExtracting ? '텍스트 추출 중...' : '텍스트 추출'}
             </button>
             {documentIsExtracting && (
               <div style={{ marginTop: 'var(--sp-xs)', color: 'var(--text-muted)', fontSize: 'var(--fs-caption)' }}>
