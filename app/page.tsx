@@ -54,12 +54,10 @@ export default function Home() {
     }
     return '';
   });
-  const [guidelinePdfFile, setGuidelinePdfFile] = useState<File | null>(null);
-  const [guidelinePdfText, setGuidelinePdfText] = useState('');
+  const [guidelineFile, setGuidelineFile] = useState<File | null>(null);
   const [guidelineIsExtracting, setGuidelineIsExtracting] = useState(false);
   const [guidelineExtractError, setGuidelineExtractError] = useState('');
-  const [documentPdfFile, setDocumentPdfFile] = useState<File | null>(null);
-  const [documentPdfText, setDocumentPdfText] = useState('');
+  const [documentFile, setDocumentFile] = useState<File | null>(null);
   const [documentIsExtracting, setDocumentIsExtracting] = useState(false);
   const [documentExtractError, setDocumentExtractError] = useState('');
   const [isInspecting, setIsInspecting] = useState(false);
@@ -99,7 +97,46 @@ export default function Home() {
     if (result) setResult(null);
   };
 
-  const extractPdfText = async (file: File): Promise<{ text: string; pageCount: number }> => {
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result as string;
+        resolve(result.split(',')[1]);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const fileCategory = (file: File): string => {
+    if (file.type.startsWith('image/') || /\.(jpg|jpeg|png|webp|bmp|heic|tiff?)$/i.test(file.name)) {
+      return '이미지';
+    }
+    if (/\.pdf$/i.test(file.name)) {
+      return 'PDF';
+    }
+    return '파일';
+  };
+
+  const extractFileText = async (file: File): Promise<{ text: string; pageCount: number }> => {
+    const isImage = file.type.startsWith('image/') || /\.(jpg|jpeg|png|webp|bmp|heic|tiff?)$/i.test(file.name);
+
+    if (isImage) {
+      const base64 = await fileToBase64(file);
+      const res = await fetch('/api/ocr', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ file: { name: file.name, data: base64, type: file.type } }),
+      });
+      if (!res.ok) {
+        const data = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(data.error ?? `OCR 실패: ${res.status}`);
+      }
+      const data = (await res.json()) as { text: string; pageCount: number };
+      return { text: data.text, pageCount: data.pageCount };
+    }
+
     const arrayBuffer = await file.arrayBuffer();
     const pdfjs = await import('pdfjs-dist');
     const originalWorkerSrc = pdfjs.GlobalWorkerOptions.workerSrc;
@@ -123,12 +160,12 @@ export default function Home() {
     }
   };
 
-  const handleExtractGuidelinePdf = async () => {
-    if (!guidelinePdfFile) return;
+  const handleExtractGuideline = async () => {
+    if (!guidelineFile) return;
     setGuidelineIsExtracting(true);
     setGuidelineExtractError('');
     try {
-      const { text } = await extractPdfText(guidelinePdfFile);
+      const { text } = await extractFileText(guidelineFile);
       setGuideline(text);
     } catch (e) {
       setGuidelineExtractError(String(e));
@@ -137,13 +174,13 @@ export default function Home() {
     }
   };
 
-  const handleExtractDocumentPdf = async () => {
-    if (!documentPdfFile) return;
+  const handleExtractDocument = async () => {
+    if (!documentFile) return;
     setDocumentIsExtracting(true);
     setDocumentExtractError('');
     try {
-      const { text, pageCount } = await extractPdfText(documentPdfFile);
-      const fileInfoLine = `파일: ${documentPdfFile.name} / 페이지 수: ${pageCount}\n`;
+      const { text, pageCount } = await extractFileText(documentFile);
+      const fileInfoLine = `파일: ${documentFile.name} / 페이지 수: ${pageCount}\n`;
       setDocument(fileInfoLine + text);
     } catch (e) {
       setDocumentExtractError(String(e));
@@ -152,13 +189,13 @@ export default function Home() {
     }
   };
 
-  const removeGuidelinePdf = () => {
-    setGuidelinePdfFile(null);
+  const removeGuidelineFile = () => {
+    setGuidelineFile(null);
     setGuidelineExtractError('');
   };
 
-  const removeDocumentPdf = () => {
-    setDocumentPdfFile(null);
+  const removeDocumentFile = () => {
+    setDocumentFile(null);
     setDocumentExtractError('');
   };
 
@@ -199,19 +236,15 @@ export default function Home() {
   const handleSwap = () => {
     const tmpGuidelines = guideline;
     const tmpDocuments = document;
-    const tmpGuidelinePdfFile = guidelinePdfFile;
-    const tmpDocumentPdfFile = documentPdfFile;
-    const tmpGuidelinePdfText = guidelinePdfText;
-    const tmpDocumentPdfText = documentPdfText;
+    const tmpGuidelineFile = guidelineFile;
+    const tmpDocumentFile = documentFile;
     const tmpGuidelineExtractError = guidelineExtractError;
     const tmpDocumentExtractError = documentExtractError;
 
     setGuideline(tmpDocuments);
     setDocument(tmpGuidelines);
-    setGuidelinePdfFile(tmpDocumentPdfFile);
-    setDocumentPdfFile(tmpGuidelinePdfFile);
-    setGuidelinePdfText(tmpDocumentPdfText);
-    setDocumentPdfText(tmpGuidelinePdfText);
+    setGuidelineFile(tmpDocumentFile);
+    setDocumentFile(tmpGuidelineFile);
     setGuidelineExtractError(tmpDocumentExtractError);
     setDocumentExtractError(tmpGuidelineExtractError);
     setSwapWarn(false);
@@ -243,8 +276,8 @@ export default function Home() {
         guideline: guideline,
         document: effectiveDocument,
         mockMode,
-        fileName: documentPdfFile?.name ?? guidelinePdfFile?.name ?? '',
-        extension: (documentPdfFile ?? guidelinePdfFile)?.name
+        fileName: documentFile?.name ?? guidelineFile?.name ?? '',
+        extension: (documentFile ?? guidelineFile)?.name
           ?.split('.')
           ?.pop()
           ?.toLowerCase() ?? 'pdf',
@@ -271,8 +304,8 @@ export default function Home() {
   const handleClear = () => {
     setGuideline('');
     setDocument('');
-    removeGuidelinePdf();
-    removeDocumentPdf();
+    removeGuidelineFile();
+    removeDocumentFile();
     setResult(null);
     setError('');
     clearLocalStorage();
@@ -303,7 +336,7 @@ export default function Home() {
         />
         <p style={{ color: 'var(--text-muted)', fontSize: 'var(--fs-body)', fontWeight: 'var(--fw-body)', lineHeight: 'var(--lh-body)', textAlign: 'center', margin: 0 }}>
           제출 요강과 제출물을 넣으면, 요강에서 요건을 뽑아내고 텍스트로 확인 가능한 항목만 판정해요.<br />
-          PDF를 올리면 브라우저에서 텍스트를 뽑아 초안으로 보여주고, 필요하면 직접 수정할 수 있어요.<br />
+          PDF나 이미지를 올리면 텍스트로 바꿔 초안으로 보여주고, 필요하면 직접 수정할 수 있어요.<br />
           파일 형식, 페이지 수, 폰트처럼 텍스트만으로는 알 수 없는 항목은 직접 확인 체크리스트로 넘겨요.
         </p>
       </div>
@@ -318,46 +351,47 @@ export default function Home() {
             style={{ width: '100%', minHeight: 220, padding: 'var(--sp-sm) var(--sp-md)', fontFamily: 'var(--font-sans)', fontSize: 'var(--fs-body-sm)', fontWeight: 'var(--fw-body-sm)', color: 'var(--ink)', background: 'var(--field)', border: 'none', borderRadius: 'var(--rounded-sm)', boxSizing: 'border-box' }}
           />
           <div style={{ marginTop: 'var(--sp-sm)', padding: 'var(--sp-lg)', border: '1px solid var(--hairline-soft)', borderRadius: 'var(--rounded-md)', background: 'var(--canvas)' }}>
-            <div style={{ fontWeight: 'var(--fw-title)', fontSize: 'var(--fs-title)', color: 'var(--ink)', marginBottom: 'var(--sp-xs)' }}>PDF 업로드 - 제출 요강 (선택)</div>
+            <div style={{ fontWeight: 'var(--fw-title)', fontSize: 'var(--fs-title)', color: 'var(--ink)', marginBottom: 'var(--sp-xs)' }}>파일 업로드 - 제출 요강 (선택)</div>
             <p style={{ fontSize: 'var(--fs-caption)', color: 'var(--text-muted)', marginBottom: 'var(--sp-sm)', lineHeight: 'var(--lh-caption)' }}>
-              요강을 PDF로 올렸다면 여기서 텍스트를 뽑아 초안으로 바꿀 수 있어요.
+              요강을 PDF나 이미지로 올렸다면 여기서 텍스트로 바꿔 초안으로 만들 수 있어요.
             </p>
-            {guidelinePdfFile && (
+            {guidelineFile && (
               <div style={{ marginBottom: 'var(--sp-sm)', fontSize: 'var(--fs-caption)', color: 'var(--text-muted)' }}>
-                업로드됨: <span style={{ fontWeight: 'var(--fw-label)', color: 'var(--ink)' }}>{guidelinePdfFile.name}</span>
+                업로드됨: <span style={{ fontWeight: 'var(--fw-label)', color: 'var(--ink)' }}>{guidelineFile.name}</span>
+                <span style={{ marginLeft: '8px', color: 'var(--text-faint)' }}>({fileCategory(guidelineFile)})</span>
               </div>
             )}
             <input
               type="file"
-              accept=".pdf"
+              accept=".pdf,image/jpeg,image/png,image/webp,image/bmp,image/heic"
               onChange={(e) => {
                 const file = e.target.files?.[0] ?? null;
                 if (file) {
-                  setGuidelinePdfFile(file);
-                  setGuidelinePdfText('');
+                  setGuidelineFile(file);
                   setGuidelineExtractError('');
                 }
               }}
             />
-            <div style={{ marginTop: 'var(--sp-xs)', fontSize: 'var(--fs-caption)', color: 'var(--text-faint)' }}>.hwp 파일은 직접 읽을 수 없어요.</div>
             <button
-                type="button"
-                onClick={handleExtractGuidelinePdf}
-                disabled={guidelineIsExtracting}
-                style={{ marginTop: '36px', padding: '0px var(--sp-md)', fontFamily: 'var(--font-sans)', fontSize: 'var(--fs-link)', fontWeight: 'var(--fw-link)', color: 'var(--ink)', background: guidelineIsExtracting ? 'var(--canvas-soft)' : 'var(--canvas)', border: '1px solid var(--hairline)', borderRadius: 'var(--rounded-full)', cursor: guidelineIsExtracting ? 'not-allowed' : 'pointer' }}
-              >
-                {guidelineIsExtracting ? '텍스트 추출 중...' : 'PDF 텍스트 추출'}
-              </button>
+              type="button"
+              onClick={handleExtractGuideline}
+              disabled={guidelineIsExtracting}
+              style={{ marginTop: '36px', padding: '0px var(--sp-md)', fontFamily: 'var(--font-sans)', fontSize: 'var(--fs-link)', fontWeight: 'var(--fw-link)', color: 'var(--ink)', background: guidelineIsExtracting ? 'var(--canvas-soft)' : 'var(--canvas)', border: '1px solid var(--hairline)', borderRadius: 'var(--rounded-full)', cursor: guidelineIsExtracting ? 'not-allowed' : 'pointer' }}
+            >
+              {guidelineIsExtracting ? '텍스트 추출 중...' : '텍스트 추출(OCR 포함)'}
+            </button>
             {guidelineIsExtracting && (
-              <div style={{ marginTop: 'var(--sp-xs)', color: 'var(--text-muted)', fontSize: 'var(--fs-caption)' }}>PDF 텍스트를 추출 중입니다.</div>
+              <div style={{ marginTop: 'var(--sp-xs)', color: 'var(--text-muted)', fontSize: 'var(--fs-caption)' }}>
+                {guidelineFile ? `(${fileCategory(guidelineFile)} 텍스트를 추출 중입니다.)` : '텍스트를 추출 중입니다.'}
+              </div>
             )}
             {guidelineExtractError && (
               <div style={{ marginTop: 'var(--sp-xs)', color: 'var(--ink)', fontSize: 'var(--fs-caption)' }}>텍스트 추출에 실패했어요: {guidelineExtractError}</div>
             )}
-            {guidelinePdfFile && !guidelineIsExtracting && !guidelinePdfText && !guidelineExtractError && (
+            {guidelineFile && !guidelineIsExtracting && !guidelineExtractError && (
               <button
                 type="button"
-                onClick={removeGuidelinePdf}
+                onClick={removeGuidelineFile}
                 style={{ marginTop: '48px', padding: '0px var(--sp-md)', fontFamily: 'var(--font-sans)', fontSize: 'var(--fs-link)', fontWeight: 'var(--fw-link)', color: 'var(--ink)', background: 'var(--canvas)', border: '1px solid var(--hairline)', borderRadius: 'var(--rounded-full)', cursor: 'pointer' }}
               >
                 업로드 제거
@@ -371,50 +405,51 @@ export default function Home() {
           <textarea
             value={document}
             onChange={(e) => handleDocumentChange(e.target.value)}
-            placeholder="제출할 결과물 본문을 붙여넣으세요. PDF를 올렸다가 텍스트로 바꿔 넣어도 돼요."
+            placeholder="제출할 결과물 본문을 붙여넣으세요. PDF나 이미지를 올렸다가 텍스트로 바꿔 넣어도 돼요."
             style={{ width: '100%', minHeight: 220, padding: 'var(--sp-sm) var(--sp-md)', fontFamily: 'var(--font-sans)', fontSize: 'var(--fs-body-sm)', fontWeight: 'var(--fw-body-sm)', color: 'var(--ink)', background: 'var(--field)', border: 'none', borderRadius: 'var(--rounded-sm)', boxSizing: 'border-box' }}
           />
           <div style={{ marginTop: 'var(--sp-sm)', padding: 'var(--sp-lg)', border: '1px solid var(--hairline-soft)', borderRadius: 'var(--rounded-md)', background: 'var(--canvas)' }}>
-            <div style={{ fontWeight: 'var(--fw-title)', fontSize: 'var(--fs-title)', color: 'var(--ink)', marginBottom: 'var(--sp-xs)' }}>PDF 업로드 - 제출 결과물 (선택)</div>
+            <div style={{ fontWeight: 'var(--fw-title)', fontSize: 'var(--fs-title)', color: 'var(--ink)', marginBottom: 'var(--sp-xs)' }}>파일 업로드 - 제출 결과물 (선택)</div>
             <p style={{ fontSize: 'var(--fs-caption)', color: 'var(--text-muted)', marginBottom: 'var(--sp-sm)', lineHeight: 'var(--lh-caption)' }}>
-              결과물이 PDF면 여기서 텍스트를 뽑아 초안으로 바꿀 수 있어요.
+              결과물이 PDF나 이미지면 여기서 텍스트로 뽑아 초안으로 바꿀 수 있어요.
             </p>
-            {documentPdfFile && (
+            {documentFile && (
               <div style={{ marginBottom: 'var(--sp-sm)', fontSize: 'var(--fs-caption)', color: 'var(--text-muted)' }}>
-                업로드됨: <span style={{ fontWeight: 'var(--fw-label)', color: 'var(--ink)' }}>{documentPdfFile.name}</span>
+                업로드됨: <span style={{ fontWeight: 'var(--fw-label)', color: 'var(--ink)' }}>{documentFile.name}</span>
+                <span style={{ marginLeft: '8px', color: 'var(--text-faint)' }}>({fileCategory(documentFile)})</span>
               </div>
             )}
             <input
               type="file"
-              accept=".pdf"
+              accept=".pdf,image/jpeg,image/png,image/webp,image/bmp,image/heic"
               onChange={(e) => {
                 const file = e.target.files?.[0] ?? null;
                 if (file) {
-                  setDocumentPdfFile(file);
-                  setDocumentPdfText('');
+                  setDocumentFile(file);
                   setDocumentExtractError('');
                 }
               }}
             />
-            <div style={{ marginTop: 'var(--sp-xs)', fontSize: 'var(--fs-caption)', color: 'var(--text-faint)' }}>.hwp 파일은 직접 읽을 수 없어요.</div>
             <button
-                type="button"
-                onClick={handleExtractDocumentPdf}
-                disabled={documentIsExtracting}
-                style={{ marginTop: '36px', padding: '0px var(--sp-md)', fontFamily: 'var(--font-sans)', fontSize: 'var(--fs-link)', fontWeight: 'var(--fw-link)', color: 'var(--ink)', background: documentIsExtracting ? 'var(--canvas-soft)' : 'var(--canvas)', border: '1px solid var(--hairline)', borderRadius: 'var(--rounded-full)', cursor: documentIsExtracting ? 'not-allowed' : 'pointer' }}
-              >
-                {documentIsExtracting ? '텍스트 추출 중...' : 'PDF 텍스트 추출'}
-              </button>
+              type="button"
+              onClick={handleExtractDocument}
+              disabled={documentIsExtracting}
+              style={{ marginTop: '36px', padding: '0px var(--sp-md)', fontFamily: 'var(--font-sans)', fontSize: 'var(--fs-link)', fontWeight: 'var(--fw-link)', color: 'var(--ink)', background: documentIsExtracting ? 'var(--canvas-soft)' : 'var(--canvas)', border: '1px solid var(--hairline)', borderRadius: 'var(--rounded-full)', cursor: documentIsExtracting ? 'not-allowed' : 'pointer' }}
+            >
+              {documentIsExtracting ? '텍스트 추출 중...' : '텍스트 추출(OCR 포함)'}
+            </button>
             {documentIsExtracting && (
-              <div style={{ marginTop: 'var(--sp-xs)', color: 'var(--text-muted)', fontSize: 'var(--fs-caption)' }}>PDF 텍스트를 추출 중입니다.</div>
+              <div style={{ marginTop: 'var(--sp-xs)', color: 'var(--text-muted)', fontSize: 'var(--fs-caption)' }}>
+                {documentFile ? `(${fileCategory(documentFile)} 텍스트를 추출 중입니다.)` : '텍스트를 추출 중입니다.'}
+              </div>
             )}
             {documentExtractError && (
               <div style={{ marginTop: 'var(--sp-xs)', color: 'var(--ink)', fontSize: 'var(--fs-caption)' }}>텍스트 추출에 실패했어요: {documentExtractError}</div>
             )}
-            {documentPdfFile && !documentIsExtracting && !documentPdfText && !documentExtractError && (
+            {documentFile && !documentIsExtracting && !documentExtractError && (
               <button
                 type="button"
-                onClick={removeDocumentPdf}
+                onClick={removeDocumentFile}
                 style={{ marginTop: '48px', padding: '0px var(--sp-md)', fontFamily: 'var(--font-sans)', fontSize: 'var(--fs-link)', fontWeight: 'var(--fw-link)', color: 'var(--ink)', background: 'var(--canvas)', border: '1px solid var(--hairline)', borderRadius: 'var(--rounded-full)', cursor: 'pointer' }}
               >
                 업로드 제거
