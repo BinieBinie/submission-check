@@ -335,9 +335,11 @@ export default function Home() {
           style={{ width: 180, height: 'auto' }}
         />
         <p style={{ color: 'var(--text-muted)', fontSize: 'var(--fs-body)', fontWeight: 'var(--fw-body)', lineHeight: 'var(--lh-body)', textAlign: 'center', margin: 0 }}>
-          제출 요강과 제출물을 넣으면, 요강에서 요건을 뽑아내고 텍스트로 확인 가능한 항목만 판정해요.<br />
-          PDF나 이미지를 올리면 텍스트로 바꿔 초안으로 보여주고, 필요하면 직접 수정할 수 있어요.<br />
-          파일 형식, 페이지 수, 폰트처럼 텍스트만으로는 알 수 없는 항목은 직접 확인 체크리스트로 넘겨요.
+          제출 전, 내 제출물이 요건에 맞는지 확인해 보세요.<br />
+          제출 요강과 제출물을 넣으면 제출 요건을 자동으로 정리해 드리고, 문서 내용이 요건을 충족하는지도 확인해 드려요.<br />
+          PDF나 이미지를 올리면 텍스트로 바꿔 초안으로 보여드려요. 필요하면 직접 수정할 수도 있고요.<br />
+          파일 형식, 페이지 수, 폰트처럼 자동 판별이 어려운 항목은 직접 확인할 체크리스트로 정리해 드려요.<br />
+          내도 돼? 내도 돼! 지금 확인해보세요.
         </p>
       </div>
 
@@ -353,7 +355,7 @@ export default function Home() {
           <div style={{ marginTop: 'var(--sp-sm)', padding: 'var(--sp-lg)', border: '1px solid var(--hairline-soft)', borderRadius: 'var(--rounded-md)', background: 'var(--canvas)' }}>
             <div style={{ fontWeight: 'var(--fw-title)', fontSize: 'var(--fs-title)', color: 'var(--ink)', marginBottom: 'var(--sp-xs)' }}>파일 업로드 - 제출 요강 (선택)</div>
             <p style={{ fontSize: 'var(--fs-caption)', color: 'var(--text-muted)', marginBottom: 'var(--sp-sm)', lineHeight: 'var(--lh-caption)' }}>
-              요강을 PDF나 이미지로 올렸다면 여기서 텍스트로 바꿔 초안으로 만들 수 있어요.
+              요강을 PDF나 이미지로 올리면 텍스트를 추출해서 초안으로 만들 수 있어요. 필요하면 직접 수정할 수도 있고요.
             </p>
             {guidelineFile && (
               <div style={{ marginBottom: 'var(--sp-sm)', fontSize: 'var(--fs-caption)', color: 'var(--text-muted)' }}>
@@ -411,7 +413,7 @@ export default function Home() {
           <div style={{ marginTop: 'var(--sp-sm)', padding: 'var(--sp-lg)', border: '1px solid var(--hairline-soft)', borderRadius: 'var(--rounded-md)', background: 'var(--canvas)' }}>
             <div style={{ fontWeight: 'var(--fw-title)', fontSize: 'var(--fs-title)', color: 'var(--ink)', marginBottom: 'var(--sp-xs)' }}>파일 업로드 - 제출 결과물 (선택)</div>
             <p style={{ fontSize: 'var(--fs-caption)', color: 'var(--text-muted)', marginBottom: 'var(--sp-sm)', lineHeight: 'var(--lh-caption)' }}>
-              결과물이 PDF나 이미지면 여기서 텍스트로 뽑아 초안으로 바꿀 수 있어요.
+              결과물이 PDF나 이미지면 여기서 텍스트를 뽑아 초안으로 바꿀 수 있어요. 필요하면 직접 수정할 수도 있고요.
             </p>
             {documentFile && (
               <div style={{ marginBottom: 'var(--sp-sm)', fontSize: 'var(--fs-caption)', color: 'var(--text-muted)' }}>
